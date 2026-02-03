@@ -3,92 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>정밀 QR 스캐너 v2.6</title>
+    <title>정밀 QR 스캐너 v2.7</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { margin: 0; background: #000; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; color: white; }
-        #reader-wrapper { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
-        #reader { width: 100%; height: 100%; }
+        body { margin: 0; background: #000; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        #reader { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-       .scan-text { margin-bottom: 20px; font-size: 18px; text-shadow: 0 2px 4px #000; }
-       .guide-box { width: 250px; height: 250px; border: 2px solid rgba(255,255,255,0.2); border-radius: 30px; position: relative; }
-       .corner { position: absolute; width: 40px; height: 40px; border: 4px solid white; border-radius: 10px; }
-       .tl { top: -4px; left: -4px; border-right: 0; border-bottom: 0; }
-       .tr { top: -4px; right: -4px; border-left: 0; border-bottom: 0; }
-       .bl { bottom: -4px; left: -4px; border-right: 0; border-top: 0; }
-       .br { bottom: -4px; right: -4px; border-left: 0; border-top: 0; }
-       .ui-panel { position: absolute; bottom: 40px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 10; }
-       .main-btn { padding: 16px 40px; background: #007bff; border: none; border-radius: 50px; color: white; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(0,123,255,0.4); }
-       .status { font-size: 14px; color: #ffeb3b; min-height: 20px; }
+       .scan-text { color: white; font-size: 18px; margin-bottom: 30px; text-shadow: 0 2px 4px #000; font-weight: bold; }
+       .guide-box { width: 260px; height: 260px; border: 1px solid rgba(255,255,255,0.2); border-radius: 30px; position: relative; }
+       .corner { position: absolute; width: 50px; height: 50px; border: 5px solid white; border-radius: 15px; }
+       .tl { top: -5px; left: -5px; border-right: 0; border-bottom: 0; }
+       .tr { top: -5px; right: -5px; border-left: 0; border-bottom: 0; }
+       .bl { bottom: -5px; left: -5px; border-right: 0; border-top: 0; }
+       .br { bottom: -5px; right: -5px; border-left: 0; border-top: 0; }
+       .ui-panel { position: absolute; bottom: 50px; width: 100%; display: flex; justify-content: center; gap: 40px; z-index: 10; }
+       .icon-btn { width: 65px; height: 65px; background: rgba(255,255,255,0.25); border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+       .icon-btn svg { fill: white; width: 30px; height: 30px; }
+        #start-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+       .start-btn { padding: 15px 40px; background: #007bff; color: white; border: none; border-radius: 30px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,123,255,0.5); }
     </style>
 </head>
 <body>
-    <div id="reader-wrapper">
-        <div id="reader"></div>
-        <div class="overlay">
-            <div class="scan-text" id="guide-text">QR 코드를 가이드 안에 맞춰주세요</div>
-            <div class="guide-box">
-                <div class="corner tl"></div><div class="corner tr"></div>
-                <div class="corner bl"></div><div class="corner br"></div>
-            </div>
+
+    <div id="reader"></div>
+    
+    <div id="start-overlay">
+        <button class="start-btn" onclick="activateScanner()">스캐너 시작하기</button>
+        <p style="color: #ccc; margin-top: 15px; font-size: 14px;">카메라 권한을 허용해 주세요</p>
+    </div>
+
+    <div class="overlay">
+        <div class="scan-text">QR 코드를 찾는 중입니다.</div>
+        <div class="guide-box">
+            <div class="corner tl"></div><div class="corner tr"></div>
+            <div class="corner bl"></div><div class="corner br"></div>
         </div>
     </div>
 
     <div class="ui-panel">
-        <div id="status" class="status">시스템 준비 완료</div>
-        <button id="start-btn" class="main-btn" onclick="startScanner()">스캐너 시작</button>
+        <button class="icon-btn" onclick="toggleTorch()">
+            <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+        </button>
+        <button class="icon-btn" onclick="document.getElementById('file-api').click()">
+            <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2.9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        </button>
     </div>
+
+    <input type="file" id="file-api" accept="image/*" style="display:none" onchange="scanLocalFile(event)">
 
     <script>
         let html5QrCode;
-        const statusEl = document.getElementById('status');
-        const startBtn = document.getElementById('start-btn');
+        let isActive = false;
+        let isTorchOn = false;
 
-        async function startScanner() {
-            startBtn.style.display = 'none';
-            statusEl.innerText = "카메라 장치 찾는 중...";
-            
+        async function activateScanner() {
+            if (isActive) return;
+            isActive = true;
+            document.getElementById('start-overlay').style.display = 'none';
+
             try {
-                // 1. 카메라 목록 가져오기 (사용자 권한 유도) [1]
-                const devices = await Html5Qrcode.getCameras();
-                if (!devices |
-
-| devices.length === 0) throw new Error("카메라를 찾을 수 없습니다.");
-
+                // 이전 세션이 남아있을 경우를 대비해 1초 대기 후 초기화
+                await new Promise(r => setTimeout(r, 500));
                 html5QrCode = new Html5Qrcode("reader");
-                
+
                 const config = {
                     fps: 20,
-                    qrbox: { width: 250, height: 250 },
-                    // [핵심] 안드로이드 크롬의 네이티브 버그 회피를 위해 하드웨어 가속 비활성화
+                    qrbox: { width: 260, height: 260 },
+                    // [핵심] 안드로이드 크롬의 특정 버그(검은 화면)를 피하기 위해 네이티브 바코드 감지기 사용 안 함
                     experimentalFeatures: { useBarCodeDetectorIfSupported: false }
                 };
 
-                // 2. 후면 카메라(environment) 연결 시도
                 await html5QrCode.start(
                     { facingMode: "environment" },
                     config,
-                    (text) => {
+                    (decodedText) => {
                         if (navigator.vibrate) navigator.vibrate(100);
-                        statusEl.innerText = "성공!";
-                        alert("인식 결과: " + text);
+                        alert("인식 결과: " + decodedText);
                     }
                 );
-                
-                statusEl.innerText = "카메라 연결 성공";
-                document.getElementById('guide-text').innerText = "QR 코드를 스캔 중입니다...";
+
+                // iOS 26 등 최신 OS에서 인식이 멈추는 현상 방지를 위한 리셋 [1]
+                const capabilities = html5QrCode.getRunningTrackCapabilities();
+                if (capabilities.focusMode) {
+                    await html5QrCode.applyVideoConstraints({ advanced: [{ focusMode: "continuous" }] });
+                }
 
             } catch (err) {
-                startBtn.style.display = 'block';
-                let errorMsg = "실패: ";
-                if (err.name === 'NotAllowedError') errorMsg += "카메라 권한을 허용해주세요.";
-                else if (err.name === 'NotReadableError') errorMsg += "다른 앱에서 카메라를 사용 중입니다.";
-                else errorMsg += err.message |
-
-| "알 수 없는 오류";
-                
-                statusEl.innerText = errorMsg;
                 console.error(err);
+                alert("실패: 카메라가 다른 앱에서 사용 중이거나 보안 설정이 되어있지 않습니다.");
+                document.getElementById('start-overlay').style.display = 'flex';
+                isActive = false;
+            }
+        }
+
+        async function toggleTorch() {
+            if (!html5QrCode) return;
+            try {
+                isTorchOn =!isTorchOn;
+                await html5QrCode.applyVideoConstraints({ advanced: });
+            } catch (e) {
+                alert("이 기기는 플래시 제어를 지원하지 않습니다.");
+            }
+        }
+
+        async function scanLocalFile(event) {
+            const files = event.target.files;
+            if (files.length === 0 ||!html5QrCode) return;
+            try {
+                const result = await html5QrCode.scanFile(files, true);
+                alert("이미지 인식 결과: " + result);
+            } catch (err) {
+                alert("QR 코드를 찾을 수 없습니다.");
             }
         }
     </script>
