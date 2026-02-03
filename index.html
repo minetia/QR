@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정밀 QR 스캐너 v2.1 (진단 기능 포함)</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f8f9fa; padding: 20px; }
+        #reader-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; border-radius: 15px; overflow: hidden; background: #000; aspect-ratio: 1/1; }
+        #reader { width: 100%; height: 100%; }
+       .controls { margin: 20px 0; display: flex; justify-content: center; gap: 10px; }
+        button { padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+       .btn-start { background: #007bff; color: white; }
+       .btn-stop { background: #6c757d; color: white; }
+        #status-box { margin: 15px auto; padding: 15px; width: 90%; max-width: 470px; border-radius: 8px; border: 1px solid #ddd; background: white; min-height: 50px; word-break: break-all; }
+       .error { color: #dc3545; background: #fff5f5!important; border-color: #ffc9c9!important; }
+    </style>
+</head>
+<body>
+    <h3>🚀 초정밀 QR 인식 엔진 (Diagnostic)</h3>
+    
+    <div id="reader-wrapper">
+        <div id="reader"></div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-start" onclick="runScanner()">카메라 시작</button>
+        <button class="btn-stop" onclick="stopScanner()">중지</button>
+    </div>
+
+    <div id="status-box">준비됨. '카메라 시작'을 눌러주세요.</div>
+
+    <script>
+        let html5QrCode;
+        const statusBox = document.getElementById('status-box');
+
+        async function runScanner() {
+            // 1. 기존 인스턴스 정리 및 초기화
+            if (html5QrCode) {
+                try { await html5QrCode.stop(); } catch(e) {}
+            }
+            html5QrCode = new Html5Qrcode("reader");
+            statusBox.innerHTML = "연결 시도 중...";
+            statusBox.className = "";
+
+            const config = {
+                fps: 20, 
+                qrbox: (w, h) => ({ width: w * 0.7, height: w * 0.7 }),
+                aspectRatio: 1.0
+            };
+
+            // 2. 고해상도 및 후면 카메라 명시적 요청
+            const cameraConstraints = { 
+                facingMode: "environment",
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            };
+
+            try {
+                await html5QrCode.start(cameraConstraints, config, (decodedText) => {
+                    statusBox.innerHTML = `<strong>성공:</strong> ${decodedText}`;
+                    if (navigator.vibrate) navigator.vibrate(100);
+                });
+                
+                statusBox.innerHTML = "카메라 작동 중. QR코드를 비춰주세요.";
+                
+                // 3. iOS 26 등 최신 OS 버그 대응 (비디오 트랙 리프레시) [4]
+                const track = html5QrCode.getRunningTrackCapabilities();
+                if (track.focusMode) {
+                    await html5QrCode.applyVideoConstraints({ advanced: [{ focusMode: "continuous" }] });
+                }
+            } catch (err) {
+                // 4. 에러 진단 로직 추가
+                let msg = "카메라 시작 실패: ";
+                if (err.name === 'NotAllowedError') msg += "카메라 권한이 거부되었습니다. 주소창 설정을 확인하세요.";
+                else if (err.name === 'NotFoundError') msg += "카메라를 찾을 수 없습니다.";
+                else if (err.name === 'NotReadableError') msg += "카메라가 다른 앱에서 이미 사용 중입니다.";
+                else if (window.location.protocol!== 'https:' && window.location.hostname!== 'localhost') {
+                    msg += "HTTPS 보안 환경이 아닙니다. 보안 연결이 필요합니다.";
+                } else msg += err.message;
+                
+                statusBox.innerHTML = msg;
+                statusBox.className = "error";
+                console.error(err);
+            }
+        }
+
+        async function stopScanner() {
+            if (html5QrCode) {
+                await html5QrCode.stop();
+                statusBox.innerHTML = "중지됨.";
+            }
+        }
+    </script>
+</body>
+</html>
