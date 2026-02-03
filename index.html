@@ -142,6 +142,74 @@
             font-family: inherit;
         }
 
+        .logo-upload-section {
+            background: white;
+            border: 3px dashed #e0e4f0;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 25px;
+        }
+
+        .logo-upload-section:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .logo-upload-section.has-logo {
+            border-style: solid;
+            border-color: #667eea;
+        }
+
+        .logo-preview {
+            max-width: 120px;
+            max-height: 120px;
+            margin: 0 auto 15px;
+            display: none;
+            border-radius: 8px;
+        }
+
+        .logo-preview.show {
+            display: block;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .remove-logo-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .remove-logo-btn.show {
+            display: inline-block;
+        }
+
+        .remove-logo-btn:hover {
+            background: #dc2626;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
         .color-settings {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -248,6 +316,13 @@
             font-size: 1em;
         }
 
+        .download-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
         .btn {
             padding: 16px 32px;
             border: none;
@@ -295,6 +370,23 @@
             transform: none;
         }
 
+        .btn-jpg {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-jpg:hover {
+            background: #d97706;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-jpg:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .qr-preview-section {
             background: #f8f9ff;
             padding: 30px;
@@ -305,6 +397,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            position: relative;
+        }
+
+        #qrcode-container {
+            position: relative;
+            display: inline-block;
         }
 
         #qrcode {
@@ -319,6 +417,27 @@
         #qrcode img {
             display: block;
             border-radius: 8px;
+        }
+
+        .logo-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 6px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .logo-overlay.show {
+            display: block;
+        }
+
+        .logo-overlay img {
+            display: block;
+            border-radius: 4px;
         }
 
         .empty-state {
@@ -387,6 +506,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .download-options {
+                grid-template-columns: 1fr;
+            }
+
             input[type="color"] {
                 width: 100%;
                 max-width: 120px;
@@ -412,6 +535,7 @@
                 <button class="tab-btn" onclick="switchTab('email')">이메일</button>
                 <button class="tab-btn" onclick="switchTab('phone')">전화번호</button>
                 <button class="tab-btn" onclick="switchTab('sms')">SMS</button>
+                <button class="tab-btn" onclick="switchTab('bank')">계좌번호</button>
                 <button class="tab-btn" onclick="switchTab('wifi')">WiFi</button>
                 <button class="tab-btn" onclick="switchTab('vcard')">vCard</button>
             </div>
@@ -469,6 +593,45 @@
                     </div>
                 </div>
 
+                <!-- 계좌번호 입력 폼 (NEW) -->
+                <div id="bank-form" class="tab-content">
+                    <div class="form-group">
+                        <label>은행명</label>
+                        <select id="bank-name">
+                            <option value="">은행을 선택하세요</option>
+                            <option value="KB국민은행">KB국민은행</option>
+                            <option value="신한은행">신한은행</option>
+                            <option value="우리은행">우리은행</option>
+                            <option value="하나은행">하나은행</option>
+                            <option value="NH농협은행">NH농협은행</option>
+                            <option value="IBK기업은행">IBK기업은행</option>
+                            <option value="SC제일은행">SC제일은행</option>
+                            <option value="한국씨티은행">한국씨티은행</option>
+                            <option value="카카오뱅크">카카오뱅크</option>
+                            <option value="케이뱅크">케이뱅크</option>
+                            <option value="토스뱅크">토스뱅크</option>
+                            <option value="부산은행">부산은행</option>
+                            <option value="대구은행">대구은행</option>
+                            <option value="경남은행">경남은행</option>
+                            <option value="광주은행">광주은행</option>
+                            <option value="전북은행">전북은행</option>
+                            <option value="제주은행">제주은행</option>
+                            <option value="산림조합중앙회">산림조합중앙회</option>
+                            <option value="우체국">우체국</option>
+                            <option value="새마을금고">새마을금고</option>
+                            <option value="신협">신협</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>계좌번호</label>
+                        <input type="text" id="bank-account" placeholder="123-456-789012">
+                    </div>
+                    <div class="form-group">
+                        <label>예금주명 (선택)</label>
+                        <input type="text" id="bank-holder" placeholder="홍길동">
+                    </div>
+                </div>
+
                 <!-- WiFi 입력 폼 -->
                 <div id="wifi-form" class="tab-content">
                     <div class="form-group">
@@ -518,6 +681,19 @@
                 </div>
             </div>
 
+            <!-- 로고 업로드 섹션 (NEW) -->
+            <div class="logo-upload-section" id="logo-upload-area" onclick="document.getElementById('logo-input').click()">
+                <img id="logo-preview" class="logo-preview" alt="로고 미리보기">
+                <div class="upload-icon">🖼️</div>
+                <div class="upload-text">
+                    <strong>로고 업로드</strong><br>
+                    QR 코드 중앙에 표시할 로고를 선택하세요<br>
+                    <small>(권장: 정사각형, 최대 500KB)</small>
+                </div>
+                <input type="file" id="logo-input" accept="image/*" onchange="handleLogoUpload(event)">
+                <button class="remove-logo-btn" id="remove-logo-btn" onclick="event.stopPropagation(); removeLogo()">로고 제거</button>
+            </div>
+
             <!-- 색상 설정 -->
             <div class="form-group">
                 <label>색상 설정</label>
@@ -548,7 +724,12 @@
 
             <!-- QR 코드 미리보기 -->
             <div class="qr-preview-section">
-                <div id="qrcode"></div>
+                <div id="qrcode-container">
+                    <div id="qrcode"></div>
+                    <div class="logo-overlay" id="logo-overlay">
+                        <img id="overlay-logo" alt="Logo">
+                    </div>
+                </div>
                 <div id="empty-state" class="empty-state">
                     <svg class="empty-state-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                         <rect x="5" y="5" width="35" height="35" fill="currentColor" rx="3"/>
@@ -567,12 +748,19 @@
             <button class="btn btn-primary" onclick="generateQR()">
                 🎨 QR 코드 생성
             </button>
-            <button class="btn btn-secondary" id="download-btn" onclick="downloadQR()" disabled>
-                💾 QR 코드 다운로드
-            </button>
+            
+            <!-- 다운로드 옵션 (NEW) -->
+            <div class="download-options">
+                <button class="btn btn-secondary" id="download-png-btn" onclick="downloadQR('png')" disabled>
+                    💾 PNG 다운로드
+                </button>
+                <button class="btn btn-jpg" id="download-jpg-btn" onclick="downloadQR('jpg')" disabled>
+                    💾 JPG 다운로드
+                </button>
+            </div>
 
             <div class="info-box">
-                💡 <strong>팁:</strong> 생성된 QR 코드는 스마트폰 카메라로 스캔할 수 있습니다. 색상은 대비가 높을수록 인식률이 좋습니다.
+                💡 <strong>팁:</strong> 생성된 QR 코드는 스마트폰 카메라로 스캔할 수 있습니다. 색상은 대비가 높을수록 인식률이 좋습니다. 로고는 QR 코드 중앙에 자동으로 배치됩니다.
             </div>
         </div>
     </div>
@@ -580,6 +768,7 @@
     <script>
         let currentTab = 'url';
         let qrCodeInstance = null;
+        let uploadedLogo = null;
 
         // 탭 전환
         function switchTab(tab) {
@@ -594,9 +783,76 @@
             document.getElementById(tab + '-form').classList.add('active');
         }
 
+        // 로고 업로드 처리
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // 파일 크기 체크 (500KB)
+            if (file.size > 500 * 1024) {
+                alert('파일 크기는 500KB 이하여야 합니다.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedLogo = e.target.result;
+                const preview = document.getElementById('logo-preview');
+                preview.src = uploadedLogo;
+                preview.classList.add('show');
+                
+                document.getElementById('logo-upload-area').classList.add('has-logo');
+                document.getElementById('remove-logo-btn').classList.add('show');
+                
+                // QR 코드가 이미 생성되어 있으면 로고 오버레이 업데이트
+                if (qrCodeInstance) {
+                    updateLogoOverlay();
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 로고 제거
+        function removeLogo() {
+            uploadedLogo = null;
+            const preview = document.getElementById('logo-preview');
+            preview.src = '';
+            preview.classList.remove('show');
+            
+            document.getElementById('logo-upload-area').classList.remove('has-logo');
+            document.getElementById('remove-logo-btn').classList.remove('show');
+            document.getElementById('logo-input').value = '';
+            
+            // 로고 오버레이 숨기기
+            document.getElementById('logo-overlay').classList.remove('show');
+        }
+
+        // 로고 오버레이 업데이트
+        function updateLogoOverlay() {
+            if (!uploadedLogo) {
+                document.getElementById('logo-overlay').classList.remove('show');
+                return;
+            }
+
+            const qrSize = parseInt(document.getElementById('qr-size').value);
+            const logoSize = Math.floor(qrSize * 0.2); // QR 코드의 20% 크기
+            
+            const overlayLogo = document.getElementById('overlay-logo');
+            overlayLogo.src = uploadedLogo;
+            overlayLogo.style.width = logoSize + 'px';
+            overlayLogo.style.height = logoSize + 'px';
+            
+            document.getElementById('logo-overlay').classList.add('show');
+        }
+
         // 크기 슬라이더 업데이트
         document.getElementById('qr-size').addEventListener('input', function() {
             document.getElementById('size-value').textContent = this.value + 'px';
+            
+            // QR 코드가 생성되어 있으면 로고 크기도 업데이트
+            if (qrCodeInstance && uploadedLogo) {
+                updateLogoOverlay();
+            }
         });
 
         // QR 코드 생성
@@ -654,6 +910,27 @@
                     }
                     qrData = `sms:${smsPhone.replace(/[^0-9+]/g, '')}?body=${encodeURIComponent(smsMessage)}`;
                     break;
+                
+                case 'bank':
+                    const bankName = document.getElementById('bank-name').value;
+                    const bankAccount = document.getElementById('bank-account').value;
+                    const bankHolder = document.getElementById('bank-holder').value;
+                    
+                    if (!bankName) {
+                        alert('은행명을 선택해주세요.');
+                        return;
+                    }
+                    if (!bankAccount) {
+                        alert('계좌번호를 입력해주세요.');
+                        return;
+                    }
+                    
+                    // 계좌번호 정보를 텍스트로 구성
+                    qrData = `${bankName}\n계좌번호: ${bankAccount}`;
+                    if (bankHolder) {
+                        qrData += `\n예금주: ${bankHolder}`;
+                    }
+                    break;
                     
                 case 'wifi':
                     const ssid = document.getElementById('wifi-ssid').value;
@@ -699,8 +976,14 @@
                     correctLevel: QRCode.CorrectLevel.H
                 });
                 
+                // 로고 오버레이 업데이트
+                if (uploadedLogo) {
+                    updateLogoOverlay();
+                }
+                
                 // 다운로드 버튼 활성화
-                document.getElementById('download-btn').disabled = false;
+                document.getElementById('download-png-btn').disabled = false;
+                document.getElementById('download-jpg-btn').disabled = false;
                 
                 console.log('QR 코드 생성 완료:', qrData);
             } catch (error) {
@@ -710,7 +993,7 @@
         }
 
         // QR 코드 다운로드
-        function downloadQR() {
+        function downloadQR(format) {
             const qrcodeDiv = document.getElementById('qrcode');
             const canvas = qrcodeDiv.querySelector('canvas');
             
@@ -719,10 +1002,55 @@
                 return;
             }
 
-            // Canvas를 이미지로 변환하여 다운로드
-            const url = canvas.toDataURL('image/png');
+            // 로고가 있으면 합성
+            if (uploadedLogo) {
+                const finalCanvas = document.createElement('canvas');
+                const ctx = finalCanvas.getContext('2d');
+                const size = parseInt(document.getElementById('qr-size').value);
+                
+                finalCanvas.width = size;
+                finalCanvas.height = size;
+                
+                // QR 코드 그리기
+                ctx.drawImage(canvas, 0, 0);
+                
+                // 로고 그리기
+                const logoImg = new Image();
+                logoImg.onload = function() {
+                    const logoSize = Math.floor(size * 0.2);
+                    const x = (size - logoSize) / 2;
+                    const y = (size - logoSize) / 2;
+                    
+                    // 흰색 배경 (로고 주변)
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(x - 6, y - 6, logoSize + 12, logoSize + 12);
+                    
+                    // 로고 그리기
+                    ctx.drawImage(logoImg, x, y, logoSize, logoSize);
+                    
+                    // 다운로드
+                    downloadCanvas(finalCanvas, format);
+                };
+                logoImg.src = uploadedLogo;
+            } else {
+                // 로고 없으면 바로 다운로드
+                downloadCanvas(canvas, format);
+            }
+        }
+
+        // Canvas 다운로드 헬퍼 함수
+        function downloadCanvas(canvas, format) {
+            let mimeType = 'image/png';
+            let extension = 'png';
+            
+            if (format === 'jpg') {
+                mimeType = 'image/jpeg';
+                extension = 'jpg';
+            }
+            
+            const url = canvas.toDataURL(mimeType, 0.95);
             const link = document.createElement('a');
-            link.download = `qrcode-${currentTab}-${Date.now()}.png`;
+            link.download = `qrcode-${currentTab}-${Date.now()}.${extension}`;
             link.href = url;
             link.click();
         }
