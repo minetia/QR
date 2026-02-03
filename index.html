@@ -142,6 +142,26 @@
             font-family: inherit;
         }
 
+        /* 계좌번호 3칸 입력 스타일 */
+        .account-input-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 12px;
+        }
+
+        .account-part {
+            text-align: center;
+        }
+
+        .account-separator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
         .logo-upload-section {
             background: white;
             border: 3px dashed #e0e4f0;
@@ -636,6 +656,15 @@
                 flex-direction: column;
             }
 
+            .account-input-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .account-separator {
+                display: none;
+            }
+
             input[type="color"] {
                 width: 100%;
                 max-width: 120px;
@@ -671,7 +700,7 @@
                 <div id="url-form" class="tab-content active">
                     <div class="form-group">
                         <label>웹사이트 URL</label>
-                        <input type="url" id="url-input" placeholder="https://minetia.github.io/QR/" value="https://minetia.github.io/QR/">
+                        <input type="url" id="url-input" placeholder="https://www.genspark.ai" value="https://www.genspark.ai">
                     </div>
                 </div>
 
@@ -719,7 +748,7 @@
                     </div>
                 </div>
 
-                <!-- 계좌번호 입력 폼 -->
+                <!-- 계좌번호 입력 폼 (개선된 버전) -->
                 <div id="bank-form" class="tab-content">
                     <div class="form-group">
                         <label>은행명</label>
@@ -749,11 +778,16 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>계좌번호</label>
-                        <input type="text" id="bank-account" placeholder="123-456-789012">
+                        <label>계좌번호 (3칸 입력)</label>
+                        <div class="account-input-grid">
+                            <input type="text" id="account-part1" placeholder="123" maxlength="6" class="account-part">
+                            <input type="text" id="account-part2" placeholder="456789" maxlength="10" class="account-part">
+                            <input type="text" id="account-part3" placeholder="012" maxlength="6" class="account-part">
+                        </div>
+                        <small style="color: #666; margin-top: 8px; display: block;">예: 123-456789-012</small>
                     </div>
                     <div class="form-group">
-                        <label>예금주명 (선택)</label>
+                        <label>예금주명</label>
                         <input type="text" id="bank-holder" placeholder="홍길동">
                     </div>
                 </div>
@@ -896,7 +930,7 @@
             </div>
 
             <div class="info-box">
-                💡 <strong>팁:</strong> 생성된 QR 코드는 스마트폰 카메라로 스캔할 수 있습니다. 색상은 대비가 높을수록 인식률이 좋습니다. 로고는 QR 코드 중앙에 자동으로 배치되며, 원본 미리보기를 통해 확대하여 볼 수 있고 바로 인쇄할 수 있습니다.
+                💡 <strong>팁:</strong> 계좌번호 QR 코드를 스캔하면 은행명, 계좌번호, 예금주가 텍스트로 표시됩니다. 복잡한 앱 연동 없이 바로 복사하여 사용할 수 있습니다.
             </div>
         </div>
     </div>
@@ -913,27 +947,24 @@
         let currentTab = 'url';
         let qrCodeInstance = null;
         let uploadedLogo = null;
-        let finalQRImage = null; // 최종 QR 이미지 저장
+        let finalQRImage = null;
 
         // 탭 전환
         function switchTab(tab) {
             currentTab = tab;
             
-            // 모든 탭 버튼과 컨텐츠 비활성화
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            // 선택된 탭 활성화
             event.target.classList.add('active');
             document.getElementById(tab + '-form').classList.add('active');
         }
 
-        // 로고 업로드 처리 (2MB로 변경)
+        // 로고 업로드 처리
         function handleLogoUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // 파일 크기 체크 (2MB)
             if (file.size > 2 * 1024 * 1024) {
                 alert('파일 크기는 2MB 이하여야 합니다.');
                 return;
@@ -949,7 +980,6 @@
                 document.getElementById('logo-upload-area').classList.add('has-logo');
                 document.getElementById('remove-logo-btn').classList.add('show');
                 
-                // QR 코드가 이미 생성되어 있으면 로고 오버레이 업데이트
                 if (qrCodeInstance) {
                     updateLogoOverlay();
                     generateFinalImage();
@@ -969,7 +999,6 @@
             document.getElementById('remove-logo-btn').classList.remove('show');
             document.getElementById('logo-input').value = '';
             
-            // 로고 오버레이 숨기기
             document.getElementById('logo-overlay').classList.remove('show');
             
             if (qrCodeInstance) {
@@ -995,7 +1024,7 @@
             document.getElementById('logo-overlay').classList.add('show');
         }
 
-        // 최종 이미지 생성 (QR + 로고 합성)
+        // 최종 이미지 생성
         function generateFinalImage() {
             const qrcodeDiv = document.getElementById('qrcode');
             const canvas = qrcodeDiv.querySelector('canvas');
@@ -1009,7 +1038,6 @@
             finalCanvas.width = size;
             finalCanvas.height = size;
             
-            // QR 코드 그리기
             ctx.drawImage(canvas, 0, 0);
             
             if (uploadedLogo) {
@@ -1019,11 +1047,9 @@
                     const x = (size - logoSize) / 2;
                     const y = (size - logoSize) / 2;
                     
-                    // 흰색 배경 (로고 주변)
                     ctx.fillStyle = 'white';
                     ctx.fillRect(x - 6, y - 6, logoSize + 12, logoSize + 12);
                     
-                    // 로고 그리기
                     ctx.drawImage(logoImg, x, y, logoSize, logoSize);
                     
                     finalQRImage = finalCanvas.toDataURL('image/png');
@@ -1051,7 +1077,6 @@
             
             let qrData = '';
 
-            // 각 타입별로 데이터 생성
             switch(currentTab) {
                 case 'url':
                     qrData = document.getElementById('url-input').value;
@@ -1101,22 +1126,28 @@
                 
                 case 'bank':
                     const bankName = document.getElementById('bank-name').value;
-                    const bankAccount = document.getElementById('bank-account').value;
-                    const bankHolder = document.getElementById('bank-holder').value;
+                    const part1 = document.getElementById('account-part1').value.trim();
+                    const part2 = document.getElementById('account-part2').value.trim();
+                    const part3 = document.getElementById('account-part3').value.trim();
+                    const bankHolder = document.getElementById('bank-holder').value.trim();
                     
                     if (!bankName) {
                         alert('은행명을 선택해주세요.');
                         return;
                     }
-                    if (!bankAccount) {
-                        alert('계좌번호를 입력해주세요.');
+                    if (!part1 || !part2 || !part3) {
+                        alert('계좌번호 3칸을 모두 입력해주세요.');
+                        return;
+                    }
+                    if (!bankHolder) {
+                        alert('예금주명을 입력해주세요.');
                         return;
                     }
                     
-                    qrData = `${bankName}\n계좌번호: ${bankAccount}`;
-                    if (bankHolder) {
-                        qrData += `\n예금주: ${bankHolder}`;
-                    }
+                    const fullAccount = `${part1}-${part2}-${part3}`;
+                    
+                    // 단순 텍스트 형식으로 저장 (스캔 시 바로 텍스트로 표시)
+                    qrData = `${bankName}\n계좌번호: ${fullAccount}\n예금주: ${bankHolder}`;
                     break;
                     
                 case 'wifi':
@@ -1147,12 +1178,10 @@
                     break;
             }
 
-            // 기존 QR 코드 제거
             const qrcodeDiv = document.getElementById('qrcode');
             qrcodeDiv.innerHTML = '';
             document.getElementById('empty-state').style.display = 'none';
 
-            // 새 QR 코드 생성
             try {
                 qrCodeInstance = new QRCode(qrcodeDiv, {
                     text: qrData,
@@ -1163,7 +1192,6 @@
                     correctLevel: QRCode.CorrectLevel.H
                 });
                 
-                // 로고 오버레이 업데이트
                 setTimeout(() => {
                     if (uploadedLogo) {
                         updateLogoOverlay();
@@ -1171,7 +1199,6 @@
                     generateFinalImage();
                 }, 100);
                 
-                // 모든 버튼 활성화
                 document.getElementById('download-png-btn').disabled = false;
                 document.getElementById('download-jpg-btn').disabled = false;
                 document.getElementById('preview-btn').disabled = false;
@@ -1184,7 +1211,7 @@
             }
         }
 
-        // 원본 미리보기 표시
+        // 원본 미리보기
         function showPreview() {
             if (!finalQRImage) {
                 alert('먼저 QR 코드를 생성해주세요.');
@@ -1205,7 +1232,6 @@
             }
         }
 
-        // ESC 키로 미리보기 닫기
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closePreview();
@@ -1219,7 +1245,6 @@
                 return;
             }
             
-            // 미리보기를 표시하고 인쇄
             showPreview();
             setTimeout(() => {
                 window.print();
@@ -1237,7 +1262,6 @@
             let extension = 'png';
             
             if (format === 'jpg') {
-                // PNG를 JPG로 변환
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const img = new Image();
@@ -1246,7 +1270,6 @@
                     canvas.width = img.width;
                     canvas.height = img.height;
                     
-                    // 흰색 배경 추가 (JPG는 투명 배경 미지원)
                     ctx.fillStyle = 'white';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0);
@@ -1262,7 +1285,6 @@
             }
         }
 
-        // 파일 다운로드 헬퍼 함수
         function downloadFile(dataUrl, extension) {
             const link = document.createElement('a');
             link.download = `qrcode-${currentTab}-${Date.now()}.${extension}`;
