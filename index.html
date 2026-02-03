@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR 코드 생성기</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -142,7 +142,6 @@
             font-family: inherit;
         }
 
-        /* 계좌번호 3칸 입력 스타일 */
         .account-input-grid {
             display: grid;
             grid-template-columns: 1fr 2fr 1fr;
@@ -151,15 +150,6 @@
 
         .account-part {
             text-align: center;
-        }
-
-        .account-separator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5em;
-            color: #667eea;
-            font-weight: bold;
         }
 
         .logo-upload-section {
@@ -489,6 +479,7 @@
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             display: none;
+            pointer-events: none;
         }
 
         .logo-overlay.show {
@@ -540,7 +531,6 @@
             color: #667eea;
         }
 
-        /* 미리보기 모달 스타일 */
         .preview-modal {
             display: none;
             position: fixed;
@@ -661,10 +651,6 @@
                 gap: 8px;
             }
 
-            .account-separator {
-                display: none;
-            }
-
             input[type="color"] {
                 width: 100%;
                 max-width: 120px;
@@ -683,20 +669,18 @@
                 📝 정보 입력
             </div>
             
-            <!-- 타입 선택 탭 -->
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('url')">URL</button>
-                <button class="tab-btn" onclick="switchTab('text')">텍스트</button>
-                <button class="tab-btn" onclick="switchTab('email')">이메일</button>
-                <button class="tab-btn" onclick="switchTab('phone')">전화번호</button>
-                <button class="tab-btn" onclick="switchTab('sms')">SMS</button>
-                <button class="tab-btn" onclick="switchTab('bank')">계좌번호</button>
-                <button class="tab-btn" onclick="switchTab('wifi')">WiFi</button>
-                <button class="tab-btn" onclick="switchTab('vcard')">vCard</button>
+                <button class="tab-btn active" onclick="switchTab(event, 'url')">URL</button>
+                <button class="tab-btn" onclick="switchTab(event, 'text')">텍스트</button>
+                <button class="tab-btn" onclick="switchTab(event, 'email')">이메일</button>
+                <button class="tab-btn" onclick="switchTab(event, 'phone')">전화번호</button>
+                <button class="tab-btn" onclick="switchTab(event, 'sms')">SMS</button>
+                <button class="tab-btn" onclick="switchTab(event, 'bank')">계좌번호</button>
+                <button class="tab-btn" onclick="switchTab(event, 'wifi')">WiFi</button>
+                <button class="tab-btn" onclick="switchTab(event, 'vcard')">vCard</button>
             </div>
 
             <div class="form-section">
-                <!-- URL 입력 폼 -->
                 <div id="url-form" class="tab-content active">
                     <div class="form-group">
                         <label>웹사이트 URL</label>
@@ -704,7 +688,6 @@
                     </div>
                 </div>
 
-                <!-- 텍스트 입력 폼 -->
                 <div id="text-form" class="tab-content">
                     <div class="form-group">
                         <label>텍스트 내용</label>
@@ -712,7 +695,6 @@
                     </div>
                 </div>
 
-                <!-- 이메일 입력 폼 -->
                 <div id="email-form" class="tab-content">
                     <div class="form-group">
                         <label>이메일 주소</label>
@@ -728,7 +710,6 @@
                     </div>
                 </div>
 
-                <!-- 전화번호 입력 폼 -->
                 <div id="phone-form" class="tab-content">
                     <div class="form-group">
                         <label>전화번호</label>
@@ -736,7 +717,6 @@
                     </div>
                 </div>
 
-                <!-- SMS 입력 폼 -->
                 <div id="sms-form" class="tab-content">
                     <div class="form-group">
                         <label>전화번호</label>
@@ -748,7 +728,6 @@
                     </div>
                 </div>
 
-                <!-- 계좌번호 입력 폼 (개선된 버전) -->
                 <div id="bank-form" class="tab-content">
                     <div class="form-group">
                         <label>은행명</label>
@@ -792,7 +771,6 @@
                     </div>
                 </div>
 
-                <!-- WiFi 입력 폼 -->
                 <div id="wifi-form" class="tab-content">
                     <div class="form-group">
                         <label>네트워크 이름 (SSID)</label>
@@ -812,7 +790,6 @@
                     </div>
                 </div>
 
-                <!-- vCard 입력 폼 -->
                 <div id="vcard-form" class="tab-content">
                     <div class="form-group">
                         <label>이름</label>
@@ -841,7 +818,6 @@
                 </div>
             </div>
 
-            <!-- 로고 업로드 섹션 -->
             <div class="logo-upload-section" id="logo-upload-area" onclick="document.getElementById('logo-input').click()">
                 <img id="logo-preview" class="logo-preview" alt="로고 미리보기">
                 <div class="upload-icon">🖼️</div>
@@ -854,7 +830,6 @@
                 <button class="remove-logo-btn" id="remove-logo-btn" onclick="event.stopPropagation(); removeLogo()">로고 제거</button>
             </div>
 
-            <!-- 색상 설정 -->
             <div class="form-group">
                 <label>색상 설정</label>
                 <div class="color-settings">
@@ -873,7 +848,6 @@
                 </div>
             </div>
 
-            <!-- QR 코드 크기 -->
             <div class="form-group size-control">
                 <label>QR 코드 크기</label>
                 <div class="size-slider">
@@ -882,7 +856,6 @@
                 </div>
             </div>
 
-            <!-- QR 코드 미리보기 -->
             <div class="qr-preview-section">
                 <div id="qrcode-container">
                     <div id="qrcode"></div>
@@ -904,12 +877,10 @@
                 </div>
             </div>
 
-            <!-- 버튼 -->
             <button class="btn btn-primary" onclick="generateQR()">
                 🎨 QR 코드 생성
             </button>
             
-            <!-- 미리보기 및 인쇄 버튼 -->
             <div class="action-buttons">
                 <button class="btn btn-preview" id="preview-btn" onclick="showPreview()" disabled>
                     👁️ 원본 미리보기
@@ -919,7 +890,6 @@
                 </button>
             </div>
 
-            <!-- 다운로드 옵션 -->
             <div class="download-options">
                 <button class="btn btn-secondary" id="download-png-btn" onclick="downloadQR('png')" disabled>
                     💾 PNG 다운로드
@@ -935,7 +905,6 @@
         </div>
     </div>
 
-    <!-- 미리보기 모달 -->
     <div class="preview-modal" id="preview-modal" onclick="closePreview(event)">
         <div class="preview-content" onclick="event.stopPropagation()">
             <button class="preview-close" onclick="closePreview()">×</button>
@@ -949,8 +918,7 @@
         let uploadedLogo = null;
         let finalQRImage = null;
 
-        // 탭 전환
-        function switchTab(tab) {
+        function switchTab(event, tab) {
             currentTab = tab;
             
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -960,7 +928,6 @@
             document.getElementById(tab + '-form').classList.add('active');
         }
 
-        // 로고 업로드 처리
         function handleLogoUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -981,14 +948,15 @@
                 document.getElementById('remove-logo-btn').classList.add('show');
                 
                 if (qrCodeInstance) {
-                    updateLogoOverlay();
-                    generateFinalImage();
+                    setTimeout(() => {
+                        updateLogoOverlay();
+                        generateFinalImage();
+                    }, 100);
                 }
             };
             reader.readAsDataURL(file);
         }
 
-        // 로고 제거
         function removeLogo() {
             uploadedLogo = null;
             const preview = document.getElementById('logo-preview');
@@ -1006,7 +974,6 @@
             }
         }
 
-        // 로고 오버레이 업데이트
         function updateLogoOverlay() {
             if (!uploadedLogo) {
                 document.getElementById('logo-overlay').classList.remove('show');
@@ -1024,7 +991,6 @@
             document.getElementById('logo-overlay').classList.add('show');
         }
 
-        // 최종 이미지 생성
         function generateFinalImage() {
             const qrcodeDiv = document.getElementById('qrcode');
             const canvas = qrcodeDiv.querySelector('canvas');
@@ -1060,7 +1026,6 @@
             }
         }
 
-        // 크기 슬라이더 업데이트
         document.getElementById('qr-size').addEventListener('input', function() {
             document.getElementById('size-value').textContent = this.value + 'px';
             
@@ -1069,120 +1034,117 @@
             }
         });
 
-        // QR 코드 생성
         function generateQR() {
-            const fgColor = document.getElementById('fg-color').value;
-            const bgColor = document.getElementById('bg-color').value;
-            const size = parseInt(document.getElementById('qr-size').value);
-            
-            let qrData = '';
-
-            switch(currentTab) {
-                case 'url':
-                    qrData = document.getElementById('url-input').value;
-                    if (!qrData) {
-                        alert('URL을 입력해주세요.');
-                        return;
-                    }
-                    break;
-                    
-                case 'text':
-                    qrData = document.getElementById('text-input').value;
-                    if (!qrData) {
-                        alert('텍스트를 입력해주세요.');
-                        return;
-                    }
-                    break;
-                    
-                case 'email':
-                    const emailAddr = document.getElementById('email-address').value;
-                    const emailSubject = document.getElementById('email-subject').value;
-                    const emailBody = document.getElementById('email-body').value;
-                    if (!emailAddr) {
-                        alert('이메일 주소를 입력해주세요.');
-                        return;
-                    }
-                    qrData = `mailto:${emailAddr}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-                    break;
-                    
-                case 'phone':
-                    const phone = document.getElementById('phone-input').value;
-                    if (!phone) {
-                        alert('전화번호를 입력해주세요.');
-                        return;
-                    }
-                    qrData = `tel:${phone.replace(/[^0-9+]/g, '')}`;
-                    break;
-                    
-                case 'sms':
-                    const smsPhone = document.getElementById('sms-phone').value;
-                    const smsMessage = document.getElementById('sms-message').value;
-                    if (!smsPhone) {
-                        alert('전화번호를 입력해주세요.');
-                        return;
-                    }
-                    qrData = `sms:${smsPhone.replace(/[^0-9+]/g, '')}?body=${encodeURIComponent(smsMessage)}`;
-                    break;
-                
-                case 'bank':
-                    const bankName = document.getElementById('bank-name').value;
-                    const part1 = document.getElementById('account-part1').value.trim();
-                    const part2 = document.getElementById('account-part2').value.trim();
-                    const part3 = document.getElementById('account-part3').value.trim();
-                    const bankHolder = document.getElementById('bank-holder').value.trim();
-                    
-                    if (!bankName) {
-                        alert('은행명을 선택해주세요.');
-                        return;
-                    }
-                    if (!part1 || !part2 || !part3) {
-                        alert('계좌번호 3칸을 모두 입력해주세요.');
-                        return;
-                    }
-                    if (!bankHolder) {
-                        alert('예금주명을 입력해주세요.');
-                        return;
-                    }
-                    
-                    const fullAccount = `${part1}-${part2}-${part3}`;
-                    
-                    // 단순 텍스트 형식으로 저장 (스캔 시 바로 텍스트로 표시)
-                    qrData = `${bankName}\n계좌번호: ${fullAccount}\n예금주: ${bankHolder}`;
-                    break;
-                    
-                case 'wifi':
-                    const ssid = document.getElementById('wifi-ssid').value;
-                    const password = document.getElementById('wifi-password').value;
-                    const security = document.getElementById('wifi-security').value;
-                    if (!ssid) {
-                        alert('WiFi 이름을 입력해주세요.');
-                        return;
-                    }
-                    qrData = `WIFI:T:${security};S:${ssid};P:${password};;`;
-                    break;
-                    
-                case 'vcard':
-                    const name = document.getElementById('vcard-name').value;
-                    const company = document.getElementById('vcard-company').value;
-                    const title = document.getElementById('vcard-title').value;
-                    const vcardPhone = document.getElementById('vcard-phone').value;
-                    const vcardEmail = document.getElementById('vcard-email').value;
-                    const website = document.getElementById('vcard-website').value;
-                    
-                    if (!name) {
-                        alert('이름을 입력해주세요.');
-                        return;
-                    }
-                    
-                    qrData = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nORG:${company}\nTITLE:${title}\nTEL:${vcardPhone}\nEMAIL:${vcardEmail}\nURL:${website}\nEND:VCARD`;
-                    break;
-            }
-
-            const qrcodeDiv = document.getElementById('qrcode');
-            qrcodeDiv.innerHTML = '';
-            document.getElementById('empty-state').style.display = 'none';
-
             try {
+                const fgColor = document.getElementById('fg-color').value;
+                const bgColor = document.getElementById('bg-color').value;
+                const size = parseInt(document.getElementById('qr-size').value);
+                
+                let qrData = '';
+
+                switch(currentTab) {
+                    case 'url':
+                        qrData = document.getElementById('url-input').value.trim();
+                        if (!qrData) {
+                            alert('URL을 입력해주세요.');
+                            return;
+                        }
+                        break;
+                        
+                    case 'text':
+                        qrData = document.getElementById('text-input').value.trim();
+                        if (!qrData) {
+                            alert('텍스트를 입력해주세요.');
+                            return;
+                        }
+                        break;
+                        
+                    case 'email':
+                        const emailAddr = document.getElementById('email-address').value.trim();
+                        const emailSubject = document.getElementById('email-subject').value.trim();
+                        const emailBody = document.getElementById('email-body').value.trim();
+                        if (!emailAddr) {
+                            alert('이메일 주소를 입력해주세요.');
+                            return;
+                        }
+                        qrData = `mailto:${emailAddr}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                        break;
+                        
+                    case 'phone':
+                        const phone = document.getElementById('phone-input').value.trim();
+                        if (!phone) {
+                            alert('전화번호를 입력해주세요.');
+                            return;
+                        }
+                        qrData = `tel:${phone.replace(/[^0-9+]/g, '')}`;
+                        break;
+                        
+                    case 'sms':
+                        const smsPhone = document.getElementById('sms-phone').value.trim();
+                        const smsMessage = document.getElementById('sms-message').value.trim();
+                        if (!smsPhone) {
+                            alert('전화번호를 입력해주세요.');
+                            return;
+                        }
+                        qrData = `sms:${smsPhone.replace(/[^0-9+]/g, '')}?body=${encodeURIComponent(smsMessage)}`;
+                        break;
+                    
+                    case 'bank':
+                        const bankName = document.getElementById('bank-name').value;
+                        const part1 = document.getElementById('account-part1').value.trim();
+                        const part2 = document.getElementById('account-part2').value.trim();
+                        const part3 = document.getElementById('account-part3').value.trim();
+                        const bankHolder = document.getElementById('bank-holder').value.trim();
+                        
+                        if (!bankName) {
+                            alert('은행명을 선택해주세요.');
+                            return;
+                        }
+                        if (!part1 || !part2 || !part3) {
+                            alert('계좌번호 3칸을 모두 입력해주세요.');
+                            return;
+                        }
+                        if (!bankHolder) {
+                            alert('예금주명을 입력해주세요.');
+                            return;
+                        }
+                        
+                        const fullAccount = `${part1}-${part2}-${part3}`;
+                        qrData = `${bankName}\n계좌번호: ${fullAccount}\n예금주: ${bankHolder}`;
+                        break;
+                        
+                    case 'wifi':
+                        const ssid = document.getElementById('wifi-ssid').value.trim();
+                        const password = document.getElementById('wifi-password').value.trim();
+                        const security = document.getElementById('wifi-security').value;
+                        if (!ssid) {
+                            alert('WiFi 이름을 입력해주세요.');
+                            return;
+                        }
+                        qrData = `WIFI:T:${security};S:${ssid};P:${password};;`;
+                        break;
+                        
+                    case 'vcard':
+                        const name = document.getElementById('vcard-name').value.trim();
+                        const company = document.getElementById('vcard-company').value.trim();
+                        const title = document.getElementById('vcard-title').value.trim();
+                        const vcardPhone = document.getElementById('vcard-phone').value.trim();
+                        const vcardEmail = document.getElementById('vcard-email').value.trim();
+                        const website = document.getElementById('vcard-website').value.trim();
+                        
+                        if (!name) {
+                            alert('이름을 입력해주세요.');
+                            return;
+                        }
+                        
+                        qrData = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nORG:${company}\nTITLE:${title}\nTEL:${vcardPhone}\nEMAIL:${vcardEmail}\nURL:${website}\nEND:VCARD`;
+                        break;
+                }
+
+                const qrcodeDiv = document.getElementById('qrcode');
+                qrcodeDiv.innerHTML = '';
+                document.getElementById('empty-state').style.display = 'none';
+
                 qrCodeInstance = new QRCode(qrcodeDiv, {
                     text: qrData,
                     width: size,
@@ -1197,21 +1159,19 @@
                         updateLogoOverlay();
                     }
                     generateFinalImage();
-                }, 100);
+                    
+                    document.getElementById('download-png-btn').disabled = false;
+                    document.getElementById('download-jpg-btn').disabled = false;
+                    document.getElementById('preview-btn').disabled = false;
+                    document.getElementById('print-btn').disabled = false;
+                }, 200);
                 
-                document.getElementById('download-png-btn').disabled = false;
-                document.getElementById('download-jpg-btn').disabled = false;
-                document.getElementById('preview-btn').disabled = false;
-                document.getElementById('print-btn').disabled = false;
-                
-                console.log('QR 코드 생성 완료:', qrData);
             } catch (error) {
-                alert('QR 코드 생성 중 오류가 발생했습니다.');
-                console.error(error);
+                console.error('QR 코드 생성 오류:', error);
+                alert('QR 코드 생성 중 오류가 발생했습니다: ' + error.message);
             }
         }
 
-        // 원본 미리보기
         function showPreview() {
             if (!finalQRImage) {
                 alert('먼저 QR 코드를 생성해주세요.');
@@ -1225,9 +1185,8 @@
             modal.classList.add('show');
         }
 
-        // 미리보기 닫기
         function closePreview(event) {
-            if (!event || event.target.id === 'preview-modal' || event.type === 'click') {
+            if (!event || event.target.id === 'preview-modal' || !event.target.closest) {
                 document.getElementById('preview-modal').classList.remove('show');
             }
         }
@@ -1238,7 +1197,6 @@
             }
         });
 
-        // 인쇄하기
         function printQR() {
             if (!finalQRImage) {
                 alert('먼저 QR 코드를 생성해주세요.');
@@ -1251,7 +1209,6 @@
             }, 300);
         }
 
-        // QR 코드 다운로드
         function downloadQR(format) {
             if (!finalQRImage) {
                 alert('먼저 QR 코드를 생성해주세요.');
@@ -1292,9 +1249,10 @@
             link.click();
         }
 
-        // 페이지 로드 시 기본 QR 코드 생성
         window.addEventListener('load', function() {
-            generateQR();
+            setTimeout(() => {
+                generateQR();
+            }, 500);
         });
     </script>
 </body>
