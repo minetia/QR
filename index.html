@@ -2,95 +2,105 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>정밀 QR 스캐너 v2.1 (진단 기능 포함)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>정밀 QR 엔진 v2.2</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f8f9fa; padding: 20px; }
-        #reader-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; border-radius: 15px; overflow: hidden; background: #000; aspect-ratio: 1/1; }
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        #reader-container { width: 100%; max-width: 450px; position: relative; border-radius: 20px; overflow: hidden; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); aspect-ratio: 1/1; }
         #reader { width: 100%; height: 100%; }
-       .controls { margin: 20px 0; display: flex; justify-content: center; gap: 10px; }
-        button { padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-       .btn-start { background: #007bff; color: white; }
-       .btn-stop { background: #6c757d; color: white; }
-        #status-box { margin: 15px auto; padding: 15px; width: 90%; max-width: 470px; border-radius: 8px; border: 1px solid #ddd; background: white; min-height: 50px; word-break: break-all; }
-       .error { color: #dc3545; background: #fff5f5!important; border-color: #ffc9c9!important; }
+       .controls { margin-top: 25px; display: flex; gap: 12px; width: 100%; max-width: 450px; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+       .btn-run { background: #007bff; color: white; }
+       .btn-run:active { background: #0056b3; }
+        #log-box { margin-top: 20px; width: 100%; max-width: 420px; padding: 15px; border-radius: 12px; background: white; font-size: 14px; border: 1px solid #ddd; min-height: 60px; line-height: 1.5; }
+       .err-text { color: #d93025; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h3>🚀 초정밀 QR 인식 엔진 (Diagnostic)</h3>
+    <h2 style="margin-bottom: 20px;">🔍 정밀 인식 엔진 v2.2</h2>
     
-    <div id="reader-wrapper">
+    <div id="reader-container">
         <div id="reader"></div>
     </div>
 
     <div class="controls">
-        <button class="btn-start" onclick="runScanner()">카메라 시작</button>
-        <button class="btn-stop" onclick="stopScanner()">중지</button>
+        <button class="btn-run" onclick="initScanner()">카메라 연결</button>
+        <button style="background:#6c757d; color:white;" onclick="stopScanner()">중지</button>
     </div>
 
-    <div id="status-box">준비됨. '카메라 시작'을 눌러주세요.</div>
+    <div id="log-box">시스템 준비 완료. 버튼을 눌러주세요.</div>
 
     <script>
-        let html5QrCode;
-        const statusBox = document.getElementById('status-box');
+        let scanner;
+        const log = document.getElementById('log-box');
 
-        async function runScanner() {
-            // 1. 기존 인스턴스 정리 및 초기화
-            if (html5QrCode) {
-                try { await html5QrCode.stop(); } catch(e) {}
-            }
-            html5QrCode = new Html5Qrcode("reader");
-            statusBox.innerHTML = "연결 시도 중...";
-            statusBox.className = "";
+        async function initScanner() {
+            if (scanner) { try { await scanner.stop(); } catch(e) {} }
+            scanner = new Html5Qrcode("reader");
+            log.innerHTML = "장치 확인 중...";
+
+            // 1. 단계별 카메라 제약 조건 (고해상도 -> 일반 순서로 시도) [2, 3]
+            const highRes = { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } };
+            const lowRes = { facingMode: "environment" };
 
             const config = {
-                fps: 20, 
-                qrbox: (w, h) => ({ width: w * 0.7, height: w * 0.7 }),
-                aspectRatio: 1.0
-            };
-
-            // 2. 고해상도 및 후면 카메라 명시적 요청
-            const cameraConstraints = { 
-                facingMode: "environment",
-                width: { ideal: 1920 },
-                height: { ideal: 1080 }
+                fps: 25, 
+                qrbox: (w, h) => {
+                    const size = Math.min(w, h) * 0.75;
+                    return { width: size, height: size };
+                }
             };
 
             try {
-                await html5QrCode.start(cameraConstraints, config, (decodedText) => {
-                    statusBox.innerHTML = `<strong>성공:</strong> ${decodedText}`;
-                    if (navigator.vibrate) navigator.vibrate(100);
-                });
-                
-                statusBox.innerHTML = "카메라 작동 중. QR코드를 비춰주세요.";
-                
-                // 3. iOS 26 등 최신 OS 버그 대응 (비디오 트랙 리프레시) [4]
-                const track = html5QrCode.getRunningTrackCapabilities();
-                if (track.focusMode) {
-                    await html5QrCode.applyVideoConstraints({ advanced: [{ focusMode: "continuous" }] });
-                }
+                // 고해상도 시도
+                await scanner.start(highRes, config, successCallback);
+                log.innerHTML = "✅ <strong>고해상도 모드</strong>로 연결됨";
+                applyAdvancedTuning();
             } catch (err) {
-                // 4. 에러 진단 로직 추가
-                let msg = "카메라 시작 실패: ";
-                if (err.name === 'NotAllowedError') msg += "카메라 권한이 거부되었습니다. 주소창 설정을 확인하세요.";
-                else if (err.name === 'NotFoundError') msg += "카메라를 찾을 수 없습니다.";
-                else if (err.name === 'NotReadableError') msg += "카메라가 다른 앱에서 이미 사용 중입니다.";
-                else if (window.location.protocol!== 'https:' && window.location.hostname!== 'localhost') {
-                    msg += "HTTPS 보안 환경이 아닙니다. 보안 연결이 필요합니다.";
-                } else msg += err.message;
-                
-                statusBox.innerHTML = msg;
-                statusBox.className = "error";
-                console.error(err);
+                console.warn("고해상도 실패, 일반 모드 전환:", err);
+                try {
+                    // 고해상도 실패 시 일반 해상도로 재시도 (OverconstrainedError 방지) [2]
+                    await scanner.start(lowRes, config, successCallback);
+                    log.innerHTML = "⚠️ 일반 모드로 연결됨 (기기가 고해상도를 지원하지 않음)";
+                } catch (err2) {
+                    handleError(err2);
+                }
             }
         }
 
+        function successCallback(decodedText) {
+            log.innerHTML = `<span style="color:#28a745"><strong>인식 성공:</strong></span><br>${decodedText}`;
+            if (navigator.vibrate) navigator.vibrate(); // 인식 시 햅틱 피드백
+        }
+
+        function handleError(err) {
+            let msg = `<span class="err-text">접근 실패:</span> `;
+            // 에러 객체 내부 상세 확인 [1, 2]
+            const errName = err.name |
+
+| (typeof err === 'string'? err : 'UnknownError');
+            
+            if (errName === 'NotAllowedError') msg += "카메라 권한이 거부되었습니다. 주소창의 '권한 설정'을 재설정하세요.";
+            else if (errName === 'NotReadableError') msg += "다른 앱에서 카메라를 사용 중입니다. (줌, 통화 등 종료 필요)";
+            else if (errName === 'OverconstrainedError') msg += "카메라 설정이 기기와 맞지 않습니다.";
+            else msg += `시스템 오류 (${errName})`;
+
+            log.innerHTML = msg;
+        }
+
+        async function applyAdvancedTuning() {
+            try {
+                const capabilities = scanner.getRunningTrackCapabilities();
+                // 안드로이드 정밀도 향상을 위한 연속 초점 적용 [3]
+                if (capabilities.focusMode) {
+                    await scanner.applyVideoConstraints({ advanced: [{ focusMode: "continuous" }] });
+                }
+            } catch (e) {}
+        }
+
         async function stopScanner() {
-            if (html5QrCode) {
-                await html5QrCode.stop();
-                statusBox.innerHTML = "중지됨.";
-            }
+            if (scanner) { await scanner.stop(); log.innerHTML = "시스템 중지됨."; }
         }
     </script>
 </body>
