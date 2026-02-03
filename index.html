@@ -3,109 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>정밀 QR 엔진 v2.4 (Stable)</title>
+    <title>정밀 QR 스캐너 v2.5</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        #reader-container { width: 100%; max-width: 450px; position: relative; border-radius: 20px; overflow: hidden; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); aspect-ratio: 1/1; }
+        /* 1. 전체 화면 레이아웃 설정 */
+        body { margin: 0; padding: 0; background-color: #000; font-family: -apple-system, sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        #reader-container { position: relative; flex: 1; width: 100%; }
         #reader { width: 100%; height: 100%; }
-       .controls { margin-top: 25px; display: flex; gap: 12px; width: 100%; max-width: 450px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:disabled { background: #ccc!important; cursor: not-allowed; }
-       .btn-run { background: #007bff; color: white; }
-        #log-box { margin-top: 20px; width: 100%; max-width: 420px; padding: 15px; border-radius: 12px; background: white; font-size: 14px; border: 1px solid #ddd; min-height: 60px; }
-       .err-text { color: #d93025; font-weight: bold; }
+        
+        /* 2. 스캔 오버레이 (가이드라인 및 텍스트) */
+       .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+       .scan-text { color: #fff; font-size: 18px; margin-bottom: 30px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+       .corner-box { position: relative; width: 260px; height: 260px; border: 2px solid rgba(255,255,255,0.1); border-radius: 20px; }
+        
+        /* 모서리 가이드 표시 */
+       .corner { position: absolute; width: 40px; height: 40px; border-color: #fff; border-style: solid; border-width: 0; }
+       .top-left { top: -2px; left: -2px; border-top-width: 4px; border-left-width: 4px; border-top-left-radius: 20px; }
+       .top-right { top: -2px; right: -2px; border-top-width: 4px; border-right-width: 4px; border-top-right-radius: 20px; }
+       .bottom-left { bottom: -2px; left: -2px; border-bottom-width: 4px; border-left-width: 4px; border-bottom-left-radius: 20px; }
+       .bottom-right { bottom: -2px; right: -2px; border-bottom-width: 4px; border-right-width: 4px; border-bottom-right-radius: 20px; }
+
+        /* 3. 하단 컨트롤 바 */
+       .controls { position: absolute; bottom: 50px; width: 100%; display: flex; justify-content: center; gap: 40px; z-index: 20; }
+       .icon-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+       .icon-btn svg { fill: white; width: 28px; height: 28px; }
+        
+        /* 알림 메시지 */
+        #status-msg { position: absolute; top: 15%; width: 100%; text-align: center; color: #ffeb3b; z-index: 20; font-size: 14px; }
     </style>
 </head>
 <body>
-    <h2 style="margin-bottom: 20px;">🔍 정밀 인식 엔진 v2.4</h2>
-    
+
     <div id="reader-container">
         <div id="reader"></div>
+        <div id="status-msg">화면을 눌러 스캐너를 시작하세요</div>
+        
+        <div class="overlay">
+            <div class="scan-text">QR 코드를 찾는 중입니다.</div>
+            <div class="corner-box">
+                <div class="corner top-left"></div>
+                <div class="corner top-right"></div>
+                <div class="corner bottom-left"></div>
+                <div class="corner bottom-right"></div>
+            </div>
+        </div>
     </div>
 
     <div class="controls">
-        <button id="start-btn" class="btn-run" onclick="safeInitScanner()">카메라 연결</button>
-        <button id="stop-btn" style="background:#6c757d; color:white;" onclick="stopScanner()">중지</button>
+        <button class="icon-btn" onclick="toggleFlash()">
+            <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+        </button>
+        <button class="icon-btn" onclick="document.getElementById('file-input').click()">
+            <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2.9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        </button>
     </div>
 
-    <div id="log-box">시스템 준비 완료. 버튼을 한 번만 눌러주세요.</div>
+    <input type="file" id="file-input" accept="image/*" style="display:none" onchange="scanFromFile(event)">
 
     <script>
         let scanner;
-        let isBusy = false; // 상태 잠금 플래그
-        const log = document.getElementById('log-box');
-        const startBtn = document.getElementById('start-btn');
+        let isBusy = false;
+        let torchOn = false;
 
-        async function safeInitScanner() {
-            if (isBusy) return; // 이미 처리 중이면 무시
+        // 1. 스캐너 초기화 및 자동 시작 [3, 4]
+        async function startEngine() {
+            if (isBusy) return;
             isBusy = true;
-            startBtn.disabled = true;
-            log.innerHTML = "<strong>시스템 초기화 중...</strong>";
+            document.getElementById('status-msg').innerText = "카메라 연결 중...";
 
             try {
-                // 1. 기존 스캐너 완전 종료 대기
-                if (scanner) {
-                    try { await scanner.stop(); } catch(e) {}
-                    scanner = null;
-                }
-
-                // 2. 하드웨어 준비를 위한 의도적 지연 (1초) 
-                // 크롬 모바일에서 DOM 로드와 카메라 초기화 충돌을 방지합니다.
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
+                if (scanner) await scanner.stop();
                 scanner = new Html5Qrcode("reader");
-                const highRes = { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } };
+
                 const config = {
-                    fps: 20, 
-                    qrbox: (w, h) => ({ width: w * 0.7, height: w * 0.7 })
+                    fps: 25, 
+                    qrbox: { width: 260, height: 260 }, // 가이드 박스와 일치시킴
+                    aspectRatio: 1.0
                 };
 
-                log.innerHTML = "카메라에 연결하는 중입니다...";
-                
-                await scanner.start(highRes, config, (decodedText) => {
-                    log.innerHTML = `<span style="color:#28a745"><strong>성공:</strong></span> ${decodedText}`;
-                    if (navigator.vibrate) navigator.vibrate(100);
-                });
+                // 고해상도 후면 카메라 우선 시도
+                await scanner.start(
+                    { facingMode: "environment" }, 
+                    config, 
+                    onScanSuccess
+                );
 
-                log.innerHTML = "✅ 연결 성공! QR코드를 보여주세요.";
+                document.getElementById('status-msg').innerText = "";
+                // iOS 26 등 최신 환경 대응을 위한 포커스 명령 
+                const track = scanner.getRunningTrackCapabilities();
+                if (track.focusMode) {
+                    await scanner.applyVideoConstraints({ advanced: [{ focusMode: "continuous" }] });
+                }
             } catch (err) {
+                document.getElementById('status-msg').innerText = "오류: " + (err.name |
+
+| err);
                 console.error(err);
-                handleError(err);
             } finally {
                 isBusy = false;
-                startBtn.disabled = false;
             }
         }
 
-        function handleError(err) {
-            let msg = `<span class="err-text">접근 실패:</span> `;
-            const errName = err.name |
-
-| (typeof err === 'string'? err : 'UnknownError');
-            
-            if (errName.includes("transition")) {
-                msg += "카메라가 아직 준비되지 않았습니다. 잠시 후 다시 시도하세요.";
-            } else if (errName === 'NotAllowedError') {
-                msg += "카메라 권한이 거부되었습니다. 주소창 설정에서 권한을 허용해 주세요.";
-            } else {
-                msg += `시스템 오류 (${errName})`;
-            }
-            log.innerHTML = msg;
+        function onScanSuccess(text) {
+            // 성공 시 진동 및 결과 알림 [2]
+            if (navigator.vibrate) navigator.vibrate(100);
+            alert("인식된 데이터: " + text);
         }
 
-        async function stopScanner() {
-            if (scanner &&!isBusy) {
-                isBusy = true;
-                try {
-                    await scanner.stop();
-                    log.innerHTML = "중지되었습니다.";
-                } catch(e) {
-                    log.innerHTML = "중지 중 오류 발생.";
-                }
-                isBusy = false;
+        // 2. 플래시 제어 (안드로이드 크롬 권장) 
+        async function toggleFlash() {
+            if (!scanner) return;
+            try {
+                torchOn =!torchOn;
+                await scanner.applyVideoConstraints({
+                    advanced: [{ torch: torchOn }]
+                });
+            } catch (e) {
+                alert("이 기기는 플래시 제어를 지원하지 않습니다.");
             }
         }
+
+        // 3. 갤러리 파일 스캔
+        async function scanFromFile(event) {
+            const file = event.target.files;
+            if (!file ||!scanner) return;
+            try {
+                const result = await scanner.scanFile(file, true);
+                onScanSuccess(result);
+            } catch (err) {
+                alert("이미지에서 QR 코드를 찾을 수 없습니다.");
+            }
+        }
+
+        // 화면 로드 시 또는 클릭 시 시작
+        window.addEventListener('click', () => {
+            if (!scanner ||!scanner.isScanning) startEngine();
+        }, { once: true });
     </script>
 </body>
 </html>
