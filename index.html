@@ -152,74 +152,6 @@
             text-align: center;
         }
 
-        .logo-upload-section {
-            background: white;
-            border: 3px dashed #e0e4f0;
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s;
-            cursor: pointer;
-            margin-bottom: 25px;
-        }
-
-        .logo-upload-section:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-        }
-
-        .logo-upload-section.has-logo {
-            border-style: solid;
-            border-color: #667eea;
-        }
-
-        .logo-preview {
-            max-width: 120px;
-            max-height: 120px;
-            margin: 0 auto 15px;
-            display: none;
-            border-radius: 8px;
-        }
-
-        .logo-preview.show {
-            display: block;
-        }
-
-        .upload-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-            color: #667eea;
-        }
-
-        .upload-text {
-            color: #666;
-            font-size: 0.95em;
-        }
-
-        .remove-logo-btn {
-            margin-top: 10px;
-            padding: 8px 16px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9em;
-            display: none;
-        }
-
-        .remove-logo-btn.show {
-            display: inline-block;
-        }
-
-        .remove-logo-btn:hover {
-            background: #dc2626;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
         .color-settings {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -469,28 +401,6 @@
             border-radius: 8px;
         }
 
-        .logo-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 6px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            display: none;
-            pointer-events: none;
-        }
-
-        .logo-overlay.show {
-            display: block;
-        }
-
-        .logo-overlay img {
-            display: block;
-            border-radius: 4px;
-        }
-
         .empty-state {
             text-align: center;
             color: #9ca3af;
@@ -529,21 +439,6 @@
 
         .info-box strong {
             color: #667eea;
-        }
-
-        .warning-box {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 12px 16px;
-            margin-top: 10px;
-            border-radius: 8px;
-            font-size: 0.85em;
-            color: #92400e;
-            display: none;
-        }
-
-        .warning-box.show {
-            display: block;
         }
 
         .preview-modal {
@@ -706,8 +601,8 @@
                 <div id="text-form" class="tab-content">
                     <div class="form-group">
                         <label>텍스트 내용</label>
-                        <textarea id="text-input" placeholder="QR 코드에 포함할 텍스트를 입력하세요" maxlength="500"></textarea>
-                        <small style="color: #666; margin-top: 8px; display: block;">최대 500자까지 입력 가능</small>
+                        <textarea id="text-input" placeholder="QR 코드에 포함할 텍스트를 입력하세요" maxlength="300"></textarea>
+                        <small style="color: #666; margin-top: 8px; display: block;">최대 300자</small>
                     </div>
                 </div>
 
@@ -718,11 +613,11 @@
                     </div>
                     <div class="form-group">
                         <label>제목 (선택)</label>
-                        <input type="text" id="email-subject" placeholder="이메일 제목" maxlength="50">
+                        <input type="text" id="email-subject" placeholder="이메일 제목" maxlength="30">
                     </div>
                     <div class="form-group">
                         <label>메시지 (선택)</label>
-                        <textarea id="email-body" placeholder="이메일 본문" maxlength="200"></textarea>
+                        <textarea id="email-body" placeholder="이메일 본문" maxlength="100"></textarea>
                     </div>
                 </div>
 
@@ -740,7 +635,7 @@
                     </div>
                     <div class="form-group">
                         <label>메시지</label>
-                        <textarea id="sms-message" placeholder="SMS 내용" maxlength="200"></textarea>
+                        <textarea id="sms-message" placeholder="SMS 내용" maxlength="100"></textarea>
                     </div>
                 </div>
 
@@ -748,51 +643,44 @@
                     <div class="form-group">
                         <label>은행명</label>
                         <select id="bank-name">
-                            <option value="">은행을 선택하세요</option>
-                            <option value="KB국민">KB국민</option>
+                            <option value="">선택</option>
+                            <option value="KB">KB국민</option>
                             <option value="신한">신한</option>
                             <option value="우리">우리</option>
                             <option value="하나">하나</option>
-                            <option value="NH농협">NH농협</option>
-                            <option value="IBK기업">IBK기업</option>
-                            <option value="SC제일">SC제일</option>
+                            <option value="농협">농협</option>
+                            <option value="기업">기업</option>
+                            <option value="SC">SC</option>
                             <option value="씨티">씨티</option>
-                            <option value="카카오뱅크">카카오뱅크</option>
-                            <option value="케이뱅크">케이뱅크</option>
-                            <option value="토스뱅크">토스뱅크</option>
+                            <option value="카카오">카카오</option>
+                            <option value="케이">케이</option>
+                            <option value="토스">토스</option>
                             <option value="부산">부산</option>
                             <option value="대구">대구</option>
                             <option value="경남">경남</option>
                             <option value="광주">광주</option>
                             <option value="전북">전북</option>
                             <option value="제주">제주</option>
-                            <option value="산림조합">산림조합</option>
                             <option value="우체국">우체국</option>
-                            <option value="새마을금고">새마을금고</option>
-                            <option value="신협">신협</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>계좌번호 (3칸 입력)</label>
+                        <label>계좌번호</label>
                         <div class="account-input-grid">
                             <input type="text" id="account-part1" placeholder="123" maxlength="6" class="account-part">
                             <input type="text" id="account-part2" placeholder="456789" maxlength="10" class="account-part">
                             <input type="text" id="account-part3" placeholder="012" maxlength="6" class="account-part">
                         </div>
-                        <small style="color: #666; margin-top: 8px; display: block;">예: 123-456789-012</small>
                     </div>
                     <div class="form-group">
-                        <label>예금주명</label>
-                        <input type="text" id="bank-holder" placeholder="홍길동" maxlength="20">
-                    </div>
-                    <div class="warning-box" id="bank-warning">
-                        ⚠️ 로고를 사용하면 데이터 용량이 증가할 수 있습니다. 오류 발생 시 로고를 제거해주세요.
+                        <label>예금주</label>
+                        <input type="text" id="bank-holder" placeholder="홍길동" maxlength="10">
                     </div>
                 </div>
 
                 <div id="wifi-form" class="tab-content">
                     <div class="form-group">
-                        <label>네트워크 이름 (SSID)</label>
+                        <label>WiFi 이름</label>
                         <input type="text" id="wifi-ssid" placeholder="WiFi 이름" maxlength="32">
                     </div>
                     <div class="form-group">
@@ -800,11 +688,11 @@
                         <input type="password" id="wifi-password" placeholder="WiFi 비밀번호" maxlength="63">
                     </div>
                     <div class="form-group">
-                        <label>보안 타입</label>
+                        <label>보안</label>
                         <select id="wifi-security">
                             <option value="WPA">WPA/WPA2</option>
                             <option value="WEP">WEP</option>
-                            <option value="nopass">암호 없음</option>
+                            <option value="nopass">없음</option>
                         </select>
                     </div>
                 </div>
@@ -812,41 +700,17 @@
                 <div id="vcard-form" class="tab-content">
                     <div class="form-group">
                         <label>이름</label>
-                        <input type="text" id="vcard-name" placeholder="홍길동" maxlength="50">
+                        <input type="text" id="vcard-name" placeholder="홍길동" maxlength="30">
                     </div>
                     <div class="form-group">
-                        <label>회사 (선택)</label>
-                        <input type="text" id="vcard-company" placeholder="회사명" maxlength="50">
-                    </div>
-                    <div class="form-group">
-                        <label>직함 (선택)</label>
-                        <input type="text" id="vcard-title" placeholder="직책" maxlength="50">
-                    </div>
-                    <div class="form-group">
-                        <label>전화번호 (선택)</label>
+                        <label>전화 (선택)</label>
                         <input type="tel" id="vcard-phone" placeholder="010-1234-5678">
                     </div>
                     <div class="form-group">
                         <label>이메일 (선택)</label>
                         <input type="email" id="vcard-email" placeholder="email@example.com">
                     </div>
-                    <div class="form-group">
-                        <label>웹사이트 (선택)</label>
-                        <input type="url" id="vcard-website" placeholder="https://example.com">
-                    </div>
                 </div>
-            </div>
-
-            <div class="logo-upload-section" id="logo-upload-area" onclick="document.getElementById('logo-input').click()">
-                <img id="logo-preview" class="logo-preview" alt="로고 미리보기">
-                <div class="upload-icon">🖼️</div>
-                <div class="upload-text">
-                    <strong>로고 업로드 (선택)</strong><br>
-                    QR 코드 중앙에 표시할 로고를 선택하세요<br>
-                    <small>(권장: 정사각형, 최대 2MB)</small>
-                </div>
-                <input type="file" id="logo-input" accept="image/*" onchange="handleLogoUpload(event)">
-                <button class="remove-logo-btn" id="remove-logo-btn" onclick="event.stopPropagation(); removeLogo()">로고 제거</button>
             </div>
 
             <div class="form-group">
@@ -878,9 +742,6 @@
             <div class="qr-preview-section">
                 <div id="qrcode-container">
                     <div id="qrcode"></div>
-                    <div class="logo-overlay" id="logo-overlay">
-                        <img id="overlay-logo" alt="Logo">
-                    </div>
                 </div>
                 <div id="empty-state" class="empty-state">
                     <svg class="empty-state-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -919,7 +780,7 @@
             </div>
 
             <div class="info-box">
-                💡 <strong>팁:</strong> 계좌번호 QR 코드를 스캔하면 은행명, 계좌번호, 예금주가 텍스트로 표시됩니다. 복잡한 앱 연동 없이 바로 복사하여 사용할 수 있습니다.
+                💡 <strong>팁:</strong> QR 코드를 스캔하면 입력한 정보가 텍스트로 표시됩니다. 간단하게 복사하여 사용할 수 있습니다.
             </div>
         </div>
     </div>
@@ -934,7 +795,6 @@
     <script>
         let currentTab = 'url';
         let qrCodeInstance = null;
-        let uploadedLogo = null;
         let finalQRImage = null;
 
         function switchTab(event, tab) {
@@ -945,82 +805,6 @@
             
             event.target.classList.add('active');
             document.getElementById(tab + '-form').classList.add('active');
-            
-            // 계좌번호 탭이면 경고 표시
-            if (tab === 'bank' && uploadedLogo) {
-                document.getElementById('bank-warning').classList.add('show');
-            } else {
-                document.getElementById('bank-warning').classList.remove('show');
-            }
-        }
-
-        function handleLogoUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (file.size > 2 * 1024 * 1024) {
-                alert('파일 크기는 2MB 이하여야 합니다.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                uploadedLogo = e.target.result;
-                const preview = document.getElementById('logo-preview');
-                preview.src = uploadedLogo;
-                preview.classList.add('show');
-                
-                document.getElementById('logo-upload-area').classList.add('has-logo');
-                document.getElementById('remove-logo-btn').classList.add('show');
-                
-                // 계좌번호 탭이면 경고 표시
-                if (currentTab === 'bank') {
-                    document.getElementById('bank-warning').classList.add('show');
-                }
-                
-                if (qrCodeInstance) {
-                    setTimeout(() => {
-                        updateLogoOverlay();
-                        generateFinalImage();
-                    }, 100);
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removeLogo() {
-            uploadedLogo = null;
-            const preview = document.getElementById('logo-preview');
-            preview.src = '';
-            preview.classList.remove('show');
-            
-            document.getElementById('logo-upload-area').classList.remove('has-logo');
-            document.getElementById('remove-logo-btn').classList.remove('show');
-            document.getElementById('logo-input').value = '';
-            document.getElementById('bank-warning').classList.remove('show');
-            
-            document.getElementById('logo-overlay').classList.remove('show');
-            
-            if (qrCodeInstance) {
-                generateFinalImage();
-            }
-        }
-
-        function updateLogoOverlay() {
-            if (!uploadedLogo) {
-                document.getElementById('logo-overlay').classList.remove('show');
-                return;
-            }
-
-            const qrSize = parseInt(document.getElementById('qr-size').value);
-            const logoSize = Math.floor(qrSize * 0.2);
-            
-            const overlayLogo = document.getElementById('overlay-logo');
-            overlayLogo.src = uploadedLogo;
-            overlayLogo.style.width = logoSize + 'px';
-            overlayLogo.style.height = logoSize + 'px';
-            
-            document.getElementById('logo-overlay').classList.add('show');
         }
 
         function generateFinalImage() {
@@ -1029,41 +813,11 @@
             
             if (!canvas) return;
 
-            const finalCanvas = document.createElement('canvas');
-            const ctx = finalCanvas.getContext('2d');
-            const size = parseInt(document.getElementById('qr-size').value);
-            
-            finalCanvas.width = size;
-            finalCanvas.height = size;
-            
-            ctx.drawImage(canvas, 0, 0);
-            
-            if (uploadedLogo) {
-                const logoImg = new Image();
-                logoImg.onload = function() {
-                    const logoSize = Math.floor(size * 0.2);
-                    const x = (size - logoSize) / 2;
-                    const y = (size - logoSize) / 2;
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(x - 6, y - 6, logoSize + 12, logoSize + 12);
-                    
-                    ctx.drawImage(logoImg, x, y, logoSize, logoSize);
-                    
-                    finalQRImage = finalCanvas.toDataURL('image/png');
-                };
-                logoImg.src = uploadedLogo;
-            } else {
-                finalQRImage = finalCanvas.toDataURL('image/png');
-            }
+            finalQRImage = canvas.toDataURL('image/png');
         }
 
         document.getElementById('qr-size').addEventListener('input', function() {
             document.getElementById('size-value').textContent = this.value + 'px';
-            
-            if (qrCodeInstance && uploadedLogo) {
-                updateLogoOverlay();
-            }
         });
 
         function generateQR() {
@@ -1073,7 +827,6 @@
                 const size = parseInt(document.getElementById('qr-size').value);
                 
                 let qrData = '';
-                let errorLevel = QRCode.CorrectLevel.M; // 기본값 M (중간)
 
                 switch(currentTab) {
                     case 'url':
@@ -1082,7 +835,6 @@
                             alert('URL을 입력해주세요.');
                             return;
                         }
-                        errorLevel = uploadedLogo ? QRCode.CorrectLevel.H : QRCode.CorrectLevel.M;
                         break;
                         
                     case 'text':
@@ -1091,23 +843,19 @@
                             alert('텍스트를 입력해주세요.');
                             return;
                         }
-                        if (qrData.length > 500) {
-                            alert('텍스트는 500자 이하로 입력해주세요.');
-                            return;
-                        }
-                        errorLevel = uploadedLogo ? QRCode.CorrectLevel.H : QRCode.CorrectLevel.M;
                         break;
                         
                     case 'email':
                         const emailAddr = document.getElementById('email-address').value.trim();
-                        const emailSubject = document.getElementById('email-subject').value.trim();
-                        const emailBody = document.getElementById('email-body').value.trim();
                         if (!emailAddr) {
                             alert('이메일 주소를 입력해주세요.');
                             return;
                         }
-                        qrData = `mailto:${emailAddr}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-                        errorLevel = QRCode.CorrectLevel.M;
+                        const emailSubject = document.getElementById('email-subject').value.trim();
+                        const emailBody = document.getElementById('email-body').value.trim();
+                        qrData = `mailto:${emailAddr}`;
+                        if (emailSubject) qrData += `?subject=${encodeURIComponent(emailSubject)}`;
+                        if (emailBody) qrData += (emailSubject ? '&' : '?') + `body=${encodeURIComponent(emailBody)}`;
                         break;
                         
                     case 'phone':
@@ -1117,83 +865,58 @@
                             return;
                         }
                         qrData = `tel:${phone.replace(/[^0-9+]/g, '')}`;
-                        errorLevel = QRCode.CorrectLevel.M;
                         break;
                         
                     case 'sms':
                         const smsPhone = document.getElementById('sms-phone').value.trim();
-                        const smsMessage = document.getElementById('sms-message').value.trim();
                         if (!smsPhone) {
                             alert('전화번호를 입력해주세요.');
                             return;
                         }
-                        qrData = `sms:${smsPhone.replace(/[^0-9+]/g, '')}?body=${encodeURIComponent(smsMessage)}`;
-                        errorLevel = QRCode.CorrectLevel.M;
+                        const smsMsg = document.getElementById('sms-message').value.trim();
+                        qrData = `sms:${smsPhone.replace(/[^0-9+]/g, '')}`;
+                        if (smsMsg) qrData += `?body=${encodeURIComponent(smsMsg)}`;
                         break;
                     
                     case 'bank':
-                        const bankName = document.getElementById('bank-name').value;
-                        const part1 = document.getElementById('account-part1').value.trim();
-                        const part2 = document.getElementById('account-part2').value.trim();
-                        const part3 = document.getElementById('account-part3').value.trim();
-                        const bankHolder = document.getElementById('bank-holder').value.trim();
+                        const bank = document.getElementById('bank-name').value;
+                        const p1 = document.getElementById('account-part1').value.trim();
+                        const p2 = document.getElementById('account-part2').value.trim();
+                        const p3 = document.getElementById('account-part3').value.trim();
+                        const holder = document.getElementById('bank-holder').value.trim();
                         
-                        if (!bankName) {
-                            alert('은행명을 선택해주세요.');
-                            return;
-                        }
-                        if (!part1 || !part2 || !part3) {
-                            alert('계좌번호 3칸을 모두 입력해주세요.');
-                            return;
-                        }
-                        if (!bankHolder) {
-                            alert('예금주명을 입력해주세요.');
+                        if (!bank || !p1 || !p2 || !p3 || !holder) {
+                            alert('모든 정보를 입력해주세요.');
                             return;
                         }
                         
-                        const fullAccount = `${part1}-${part2}-${part3}`;
-                        
-                        // 간결한 형식으로 변경
-                        qrData = `${bankName}\n${fullAccount}\n${bankHolder}`;
-                        
-                        // 로고가 있으면 L 레벨 사용 (데이터 용량 줄이기)
-                        errorLevel = uploadedLogo ? QRCode.CorrectLevel.L : QRCode.CorrectLevel.M;
+                        qrData = `${bank} ${p1}-${p2}-${p3} ${holder}`;
                         break;
                         
                     case 'wifi':
                         const ssid = document.getElementById('wifi-ssid').value.trim();
-                        const password = document.getElementById('wifi-password').value.trim();
-                        const security = document.getElementById('wifi-security').value;
                         if (!ssid) {
                             alert('WiFi 이름을 입력해주세요.');
                             return;
                         }
-                        qrData = `WIFI:T:${security};S:${ssid};P:${password};;`;
-                        errorLevel = QRCode.CorrectLevel.M;
+                        const pwd = document.getElementById('wifi-password').value.trim();
+                        const sec = document.getElementById('wifi-security').value;
+                        qrData = `WIFI:T:${sec};S:${ssid};P:${pwd};;`;
                         break;
                         
                     case 'vcard':
                         const name = document.getElementById('vcard-name').value.trim();
-                        const company = document.getElementById('vcard-company').value.trim();
-                        const title = document.getElementById('vcard-title').value.trim();
-                        const vcardPhone = document.getElementById('vcard-phone').value.trim();
-                        const vcardEmail = document.getElementById('vcard-email').value.trim();
-                        const website = document.getElementById('vcard-website').value.trim();
-                        
                         if (!name) {
                             alert('이름을 입력해주세요.');
                             return;
                         }
+                        const vp = document.getElementById('vcard-phone').value.trim();
+                        const ve = document.getElementById('vcard-email').value.trim();
                         
                         qrData = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}`;
-                        if (company) qrData += `\nORG:${company}`;
-                        if (title) qrData += `\nTITLE:${title}`;
-                        if (vcardPhone) qrData += `\nTEL:${vcardPhone}`;
-                        if (vcardEmail) qrData += `\nEMAIL:${vcardEmail}`;
-                        if (website) qrData += `\nURL:${website}`;
+                        if (vp) qrData += `\nTEL:${vp}`;
+                        if (ve) qrData += `\nEMAIL:${ve}`;
                         qrData += `\nEND:VCARD`;
-                        
-                        errorLevel = QRCode.CorrectLevel.M;
                         break;
                 }
 
@@ -1207,13 +930,10 @@
                     height: size,
                     colorDark: fgColor,
                     colorLight: bgColor,
-                    correctLevel: errorLevel
+                    correctLevel: QRCode.CorrectLevel.L
                 });
                 
                 setTimeout(() => {
-                    if (uploadedLogo) {
-                        updateLogoOverlay();
-                    }
                     generateFinalImage();
                     
                     document.getElementById('download-png-btn').disabled = false;
@@ -1224,15 +944,7 @@
                 
             } catch (error) {
                 console.error('QR 코드 생성 오류:', error);
-                
-                let errorMsg = 'QR 코드 생성 중 오류가 발생했습니다.';
-                if (error.message && error.message.includes('overflow')) {
-                    errorMsg += '\n\n데이터가 너무 많습니다. 다음을 시도해보세요:\n';
-                    errorMsg += '1. 로고를 제거하세요\n';
-                    errorMsg += '2. 입력 내용을 줄이세요\n';
-                    errorMsg += '3. 선택 항목을 비워두세요';
-                }
-                alert(errorMsg);
+                alert('QR 코드 생성 중 오류가 발생했습니다.\n내용을 더 짧게 입력해주세요.');
             }
         }
 
@@ -1242,11 +954,8 @@
                 return;
             }
             
-            const modal = document.getElementById('preview-modal');
-            const previewImg = document.getElementById('preview-image');
-            
-            previewImg.src = finalQRImage;
-            modal.classList.add('show');
+            document.getElementById('preview-image').src = finalQRImage;
+            document.getElementById('preview-modal').classList.add('show');
         }
 
         function closePreview(event) {
@@ -1280,37 +989,33 @@
             }
 
             let dataUrl = finalQRImage;
-            let extension = 'png';
+            let ext = 'png';
             
             if (format === 'jpg') {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
+                const c = document.createElement('canvas');
+                const ctx = c.getContext('2d');
                 const img = new Image();
                 
                 img.onload = function() {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    
+                    c.width = img.width;
+                    c.height = img.height;
                     ctx.fillStyle = 'white';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillRect(0, 0, c.width, c.height);
                     ctx.drawImage(img, 0, 0);
+                    dataUrl = c.toDataURL('image/jpeg', 0.95);
                     
-                    dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-                    extension = 'jpg';
-                    
-                    downloadFile(dataUrl, extension);
+                    const a = document.createElement('a');
+                    a.download = `qr-${currentTab}-${Date.now()}.jpg`;
+                    a.href = dataUrl;
+                    a.click();
                 };
                 img.src = finalQRImage;
             } else {
-                downloadFile(dataUrl, extension);
+                const a = document.createElement('a');
+                a.download = `qr-${currentTab}-${Date.now()}.png`;
+                a.href = dataUrl;
+                a.click();
             }
-        }
-
-        function downloadFile(dataUrl, extension) {
-            const link = document.createElement('a');
-            link.download = `qrcode-${currentTab}-${Date.now()}.${extension}`;
-            link.href = dataUrl;
-            link.click();
         }
 
         window.addEventListener('load', function() {
