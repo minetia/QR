@@ -3,100 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>정밀 QR 엔진 v2.3 (Fixed)</title>
+    <title>정밀 QR 엔진 v2.4 (Stable)</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         #reader-container { width: 100%; max-width: 450px; position: relative; border-radius: 20px; overflow: hidden; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); aspect-ratio: 1/1; }
         #reader { width: 100%; height: 100%; }
-      .controls { margin-top: 25px; display: flex; gap: 12px; width: 100%; max-width: 450px; }
+       .controls { margin-top: 25px; display: flex; gap: 12px; width: 100%; max-width: 450px; }
         button { flex: 1; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-      .btn-run { background: #007bff; color: white; }
-      .btn-run:active { opacity: 0.8; }
-        #log-box { margin-top: 20px; width: 100%; max-width: 420px; padding: 15px; border-radius: 12px; background: white; font-size: 14px; border: 1px solid #ddd; min-height: 60px; line-height: 1.5; }
-      .err-text { color: #d93025; font-weight: bold; }
+        button:disabled { background: #ccc!important; cursor: not-allowed; }
+       .btn-run { background: #007bff; color: white; }
+        #log-box { margin-top: 20px; width: 100%; max-width: 420px; padding: 15px; border-radius: 12px; background: white; font-size: 14px; border: 1px solid #ddd; min-height: 60px; }
+       .err-text { color: #d93025; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h2 style="margin-bottom: 20px;">🔍 정밀 인식 엔진 v2.3</h2>
+    <h2 style="margin-bottom: 20px;">🔍 정밀 인식 엔진 v2.4</h2>
     
     <div id="reader-container">
         <div id="reader"></div>
     </div>
 
     <div class="controls">
-        <button class="btn-run" onclick="initScanner()">카메라 연결</button>
-        <button style="background:#6c757d; color:white;" onclick="stopScanner()">중지</button>
+        <button id="start-btn" class="btn-run" onclick="safeInitScanner()">카메라 연결</button>
+        <button id="stop-btn" style="background:#6c757d; color:white;" onclick="stopScanner()">중지</button>
     </div>
 
-    <div id="log-box">시스템 준비 완료. '카메라 연결'을 눌러주세요.</div>
+    <div id="log-box">시스템 준비 완료. 버튼을 한 번만 눌러주세요.</div>
 
     <script>
         let scanner;
+        let isBusy = false; // 상태 잠금 플래그
         const log = document.getElementById('log-box');
+        const startBtn = document.getElementById('start-btn');
 
-        async function initScanner() {
-            log.innerHTML = "<strong>연결 시도 중...</strong> (권한 팝업을 확인하세요)";
-            
+        async function safeInitScanner() {
+            if (isBusy) return; // 이미 처리 중이면 무시
+            isBusy = true;
+            startBtn.disabled = true;
+            log.innerHTML = "<strong>시스템 초기화 중...</strong>";
+
             try {
-                if (scanner) { try { await scanner.stop(); } catch(e) {} }
-                scanner = new Html5Qrcode("reader");
+                // 1. 기존 스캐너 완전 종료 대기
+                if (scanner) {
+                    try { await scanner.stop(); } catch(e) {}
+                    scanner = null;
+                }
 
+                // 2. 하드웨어 준비를 위한 의도적 지연 (1초) 
+                // 크롬 모바일에서 DOM 로드와 카메라 초기화 충돌을 방지합니다.
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                scanner = new Html5Qrcode("reader");
                 const highRes = { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } };
                 const config = {
                     fps: 20, 
-                    qrbox: (w, h) => {
-                        const size = Math.min(w, h) * 0.7;
-                        return { width: size, height: size };
-                    }
+                    qrbox: (w, h) => ({ width: w * 0.7, height: w * 0.7 })
                 };
 
-                // 고해상도 시도 후 실패 시 일반 모드 자동 전환 [2, 3]
-                try {
-                    await scanner.start(highRes, config, successCallback);
-                    log.innerHTML = "✅ <strong>정밀 모드</strong> 연결 성공";
-                } catch (resErr) {
-                    console.warn("고해상도 실패, 일반 모드 전환");
-                    await scanner.start({ facingMode: "environment" }, config, successCallback);
-                    log.innerHTML = "⚠️ 일반 모드로 연결됨";
-                }
+                log.innerHTML = "카메라에 연결하는 중입니다...";
                 
-                applyAdvancedTuning();
+                await scanner.start(highRes, config, (decodedText) => {
+                    log.innerHTML = `<span style="color:#28a745"><strong>성공:</strong></span> ${decodedText}`;
+                    if (navigator.vibrate) navigator.vibrate(100);
+                });
+
+                log.innerHTML = "✅ 연결 성공! QR코드를 보여주세요.";
             } catch (err) {
+                console.error(err);
                 handleError(err);
+            } finally {
+                isBusy = false;
+                startBtn.disabled = false;
             }
         }
 
-        function successCallback(decodedText) {
-            log.innerHTML = `<span style="color:#28a745"><strong>인식 성공:</strong></span><br>${decodedText}`;
-            if (navigator.vibrate) navigator.vibrate(100);
-        }
-
         function handleError(err) {
-            let errName = (err && err.name)? err.name : (typeof err === 'string'? err : 'UnknownError');
             let msg = `<span class="err-text">접근 실패:</span> `;
+            const errName = err.name |
+
+| (typeof err === 'string'? err : 'UnknownError');
             
-            if (errName === 'NotAllowedError') msg += "카메라 권한이 거부되었습니다. 사이트 설정에서 권한을 재설정하세요.";
-            else if (errName === 'NotReadableError') msg += "다른 앱(줌, 통화 등)이 카메라를 사용 중입니다.";
-            else msg += `시스템 오류 (${errName})`;
-
+            if (errName.includes("transition")) {
+                msg += "카메라가 아직 준비되지 않았습니다. 잠시 후 다시 시도하세요.";
+            } else if (errName === 'NotAllowedError') {
+                msg += "카메라 권한이 거부되었습니다. 주소창 설정에서 권한을 허용해 주세요.";
+            } else {
+                msg += `시스템 오류 (${errName})`;
+            }
             log.innerHTML = msg;
-            console.error("Scanner Error:", err);
-        }
-
-        async function applyAdvancedTuning() {
-            try {
-                const capabilities = scanner.getRunningTrackCapabilities();
-                if (capabilities.focusMode) {
-                    await scanner.applyVideoConstraints({ advanced: [{ focusMode: "continuous" }] });
-                }
-            } catch (e) {}
         }
 
         async function stopScanner() {
-            if (scanner) { 
-                await scanner.stop(); 
-                log.innerHTML = "장치 연결 해제됨."; 
+            if (scanner &&!isBusy) {
+                isBusy = true;
+                try {
+                    await scanner.stop();
+                    log.innerHTML = "중지되었습니다.";
+                } catch(e) {
+                    log.innerHTML = "중지 중 오류 발생.";
+                }
+                isBusy = false;
             }
         }
     </script>
